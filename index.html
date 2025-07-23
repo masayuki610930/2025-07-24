@@ -21,21 +21,24 @@
       background-color: rgba(0, 0, 0, 0.3);
     }
 
-    #roller {
-      height: calc(100vh - 150px); /* ボタン除いた残り高さに */
+    #roller-wrapper {
+      height: calc(100vh - 150px);
       overflow: hidden;
-      margin: auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      scroll-behavior: smooth;
+      position: relative;
+    }
+
+    #roller {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      will-change: transform;
     }
 
     .item {
       font-size: 2rem;
       padding: 2.5rem 0;
-      transition: transform 0.2s, font-size 0.2s;
+      transition: transform 0.2s, font-size 0.2s, color 0.2s;
     }
 
     .centered {
@@ -76,7 +79,9 @@
 
   <h1>🥋 宴道 組み合わせ抽選</h1>
 
-  <div id="roller"></div>
+  <div id="roller-wrapper">
+    <div id="roller"></div>
+  </div>
 
   <div id="controls">
     <button onclick="startRoll()">▶ START</button>
@@ -96,30 +101,52 @@
     ];
 
     const roller = document.getElementById('roller');
-    let intervalId;
-    let speed = 15; // ← スピード3倍
-    let offset = 0;
+    const wrapper = document.getElementById('roller-wrapper');
+    let position = 0;
+    let speed = 75;  // 高速スクロール
     let slowingDown = false;
+    let animationId;
 
     function populate() {
       roller.innerHTML = '';
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 50; i++) {
         for (const theme of themes) {
-          const item = document.createElement('div');
-          item.className = 'item';
-          item.textContent = theme;
-          roller.appendChild(item);
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.textContent = theme;
+          roller.appendChild(div);
         }
       }
     }
 
+    function animate() {
+      position += speed;
+      if (position > roller.scrollHeight) {
+        position = 0;
+      }
+      roller.style.transform = `translateY(-${position}px)`;
+      highlightCenterItem();
+
+      if (slowingDown) {
+        speed *= 0.975; // ゆっくり減速
+        if (speed < 0.5) {
+          cancelAnimationFrame(animationId);
+          speed = 0;
+          highlightCenterItem();
+          return;
+        }
+      }
+      animationId = requestAnimationFrame(animate);
+    }
+
     function highlightCenterItem() {
       const items = roller.querySelectorAll('.item');
-      const center = roller.scrollTop + roller.clientHeight / 2;
+      const wrapperTop = wrapper.getBoundingClientRect().top;
+      const wrapperCenter = wrapperTop + wrapper.clientHeight / 2;
       items.forEach(item => {
-        const itemTop = item.offsetTop;
+        const itemTop = item.getBoundingClientRect().top;
         const itemBottom = itemTop + item.clientHeight;
-        if (itemTop <= center && itemBottom >= center) {
+        if (itemTop <= wrapperCenter && itemBottom >= wrapperCenter) {
           item.classList.add('centered');
         } else {
           item.classList.remove('centered');
@@ -128,24 +155,12 @@
     }
 
     function startRoll() {
+      cancelAnimationFrame(animationId);
       populate();
-      offset = 0;
-      speed = 15;
+      position = 0;
+      speed = 75;
       slowingDown = false;
-      if (intervalId) clearInterval(intervalId);
-      intervalId = setInterval(() => {
-        offset += speed;
-        roller.scrollTop = offset;
-        if (offset >= roller.scrollHeight - roller.clientHeight) offset = 0;
-        highlightCenterItem();
-        if (slowingDown) {
-          speed *= 0.975; // ← よりゆるやかに停止
-          if (speed < 0.5) {
-            clearInterval(intervalId);
-            highlightCenterItem();
-          }
-        }
-      }, 50);
+      animate();
     }
 
     function stopRoll() {
