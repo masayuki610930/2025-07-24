@@ -36,13 +36,13 @@
     }
 
     .item {
-      font-size: 2rem;
-      padding: 2.5rem 0;
+      font-size: 2.5rem;
+      padding: 2.8rem 0;
       transition: transform 0.2s, font-size 0.2s, color 0.2s;
     }
 
     .centered {
-      font-size: 3.2rem;
+      font-size: 3.8rem;
       color: #ffe15f;
     }
 
@@ -72,6 +72,23 @@
 
     button:hover {
       background-color: #ff6767;
+    }
+
+    /* 🎉 紙吹雪アニメーション */
+    .confetti {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 10px;
+      background-color: hsl(var(--hue), 70%, 60%);
+      animation: fall linear forwards;
+      opacity: 0.8;
+      z-index: 999;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(120vh) rotate(360deg); }
     }
   </style>
 </head>
@@ -103,7 +120,7 @@
     const roller = document.getElementById('roller');
     const wrapper = document.getElementById('roller-wrapper');
     let position = 0;
-    let speed = 75;  // 高速スクロール
+    let speed = 50;
     let slowingDown = false;
     let animationId;
 
@@ -121,21 +138,21 @@
 
     function animate() {
       position += speed;
-      if (position > roller.scrollHeight) {
-        position = 0;
-      }
+      if (position > roller.scrollHeight) position = 0;
       roller.style.transform = `translateY(-${position}px)`;
       highlightCenterItem();
 
       if (slowingDown) {
-        speed *= 0.975; // ゆっくり減速
+        speed *= 0.985;
         if (speed < 0.5) {
           cancelAnimationFrame(animationId);
           speed = 0;
           highlightCenterItem();
+          launchConfetti(); // ← 🎉 紙吹雪発動！
           return;
         }
       }
+
       animationId = requestAnimationFrame(animate);
     }
 
@@ -146,25 +163,35 @@
       items.forEach(item => {
         const itemTop = item.getBoundingClientRect().top;
         const itemBottom = itemTop + item.clientHeight;
-        if (itemTop <= wrapperCenter && itemBottom >= wrapperCenter) {
-          item.classList.add('centered');
-        } else {
-          item.classList.remove('centered');
-        }
+        item.classList.toggle('centered', itemTop <= wrapperCenter && itemBottom >= wrapperCenter);
       });
     }
 
     function startRoll() {
       cancelAnimationFrame(animationId);
+      document.querySelectorAll('.confetti').forEach(el => el.remove());
       populate();
       position = 0;
-      speed = 75;
+      speed = 50;
       slowingDown = false;
       animate();
     }
 
     function stopRoll() {
       slowingDown = true;
+    }
+
+    // 🎊 紙吹雪エフェクト
+    function launchConfetti() {
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDuration = 2 + Math.random() * 2 + 's';
+        confetti.style.setProperty('--hue', Math.floor(Math.random() * 360));
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 5000);
+      }
     }
 
     populate();
