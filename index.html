@@ -22,27 +22,27 @@
     }
 
     #roller-wrapper {
-      height: calc(100vh - 150px);
+      height: calc(100vh - 180px);
       overflow: hidden;
       position: relative;
     }
 
     #roller {
       position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
       right: 0;
       will-change: transform;
     }
 
     .item {
-      font-size: 2.5rem;
-      padding: 2.8rem 0;
+      font-size: 2.8rem;
+      padding: 3.5rem 0;
       transition: transform 0.2s, font-size 0.2s, color 0.2s;
     }
 
     .centered {
-      font-size: 3.8rem;
+      font-size: 4rem;
       color: #ffe15f;
     }
 
@@ -55,13 +55,13 @@
       display: flex;
       justify-content: center;
       gap: 2rem;
-      height: 120px;
+      height: 180px;
       align-items: center;
     }
 
     button {
-      font-size: 2.2rem;
-      padding: 2rem 3rem;
+      font-size: 2.6rem;
+      padding: 3rem 4rem;
       font-weight: bold;
       color: white;
       background-color: #ff3c3c;
@@ -74,7 +74,6 @@
       background-color: #ff6767;
     }
 
-    /* 🎉 紙吹雪アニメーション */
     .confetti {
       position: fixed;
       top: -20px;
@@ -102,7 +101,7 @@
 
   <div id="controls">
     <button onclick="startRoll()">▶ START</button>
-    <button onclick="stopRoll()">⏹ STOP</button>
+    <button onclick="stopRoll()">◾️ STOP</button>
   </div>
 
   <script>
@@ -137,9 +136,11 @@
     }
 
     function animate() {
-      position += speed;
-      if (position > roller.scrollHeight) position = 0;
-      roller.style.transform = `translateY(-${position}px)`;
+      position -= speed;
+      const maxScroll = -roller.scrollHeight + wrapper.clientHeight;
+      if (position < maxScroll) position = 0;
+
+      roller.style.transform = `translateY(${position}px)`;
       highlightCenterItem();
 
       if (slowingDown) {
@@ -148,7 +149,7 @@
           cancelAnimationFrame(animationId);
           speed = 0;
           highlightCenterItem();
-          launchConfetti(); // ← 🎉 紙吹雪発動！
+          launchConfetti();
           return;
         }
       }
@@ -181,7 +182,6 @@
       slowingDown = true;
     }
 
-    // 🎊 紙吹雪エフェクト
     function launchConfetti() {
       for (let i = 0; i < 100; i++) {
         const confetti = document.createElement('div');
