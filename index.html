@@ -29,7 +29,7 @@
 
     #roller {
       position: absolute;
-      bottom: 0;
+      top: 0;
       left: 0;
       right: 0;
       will-change: transform;
@@ -101,7 +101,7 @@
 
   <div id="controls">
     <button onclick="startRoll()">▶ START</button>
-    <button onclick="stopRoll()">◾️ STOP</button>
+    <button onclick="stopRoll()">⏹ STOP</button>
   </div>
 
   <script>
@@ -136,11 +136,11 @@
     }
 
     function animate() {
-      position -= speed;
-      const maxScroll = -roller.scrollHeight + wrapper.clientHeight;
-      if (position < maxScroll) position = 0;
+      position += speed;
+      const maxScroll = roller.scrollHeight - wrapper.clientHeight;
+      if (position > maxScroll) position = 0;
 
-      roller.style.transform = `translateY(${position}px)`;
+      roller.style.transform = `translateY(-${position}px)`;
       highlightCenterItem();
 
       if (slowingDown) {
