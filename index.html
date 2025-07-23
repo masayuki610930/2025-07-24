@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>宴道組み合わせ抽選</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #1c2e4a;
+      color: white;
+      font-family: 'Arial Black', sans-serif;
+      text-align: center;
+      overflow: hidden;
+    }
+    #roller {
+      font-size: 4rem;
+      position: relative;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .item {
+      margin: 1rem 0;
+      transition: transform 0.2s;
+    }
+    #controls {
+      margin-top: 1rem;
+    }
+    button {
+      padding: 1rem 2rem;
+      margin: 0 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🥋 宴道 組み合わせ抽選</h1>
+
+  <div id="roller"></div>
+
+  <div id="controls">
+    <button onclick="startRoll()">▶ START</button>
+    <button onclick="stopRoll()">⏹ STOP</button>
+  </div>
+
+  <script>
+    const themes = [
+      '+チャーハン級',
+      '-からあげ級',
+      '+90kg（酔い）',
+      '最近笑った話',
+      '一発ギャグ級',
+      '推しを語る級',
+      '失敗談級',
+      '隣の人を褒める級'
+    ];
+
+    const roller = document.getElementById('roller');
+    let intervalId;
+
+    function populate() {
+      roller.innerHTML = '';
+      for (let i = 0; i < 100; i++) {
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.textContent = themes[Math.floor(Math.random() * themes.length)];
+        roller.appendChild(item);
+      }
+    }
+
+    function startRoll() {
+      populate();
+      let offset = 0;
+      intervalId = setInterval(() => {
+        offset += 5;
+        roller.scrollTop = offset;
+        if (offset >= roller.scrollHeight - roller.clientHeight) offset = 0;
+      }, 50);
+    }
+
+    function stopRoll() {
+      clearInterval(intervalId);
+    }
+
+    // 初期化
+    populate();
+  </script>
+
+</body>
+</html>
