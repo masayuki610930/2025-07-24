@@ -2,37 +2,73 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>宴道組み合わせ抽選</title>
+  <title>宴道 抽選ルーレット</title>
   <style>
     body {
       margin: 0;
-      background-color: #1c2e4a;
-      color: white;
+      padding: 0;
+      background: linear-gradient(to bottom, #1c2e4a, #223d6e, #2f4e8c);
       font-family: 'Arial Black', sans-serif;
-      text-align: center;
+      color: white;
       overflow: hidden;
+      text-align: center;
     }
+
+    h1 {
+      font-size: 3rem;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
     #roller {
-      font-size: 4rem;
+      height: 15rem; /* 約5行分 */
+      overflow: hidden;
       position: relative;
-      height: 80vh;
+      margin: auto;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
+      align-items: center;
+      scroll-behavior: smooth;
     }
+
     .item {
-      margin: 1rem 0;
-      transition: transform 0.2s;
+      font-size: 2rem;
+      padding: 2rem 0;
+      transition: transform 0.2s, font-size 0.2s;
     }
+
+    .centered {
+      font-size: 3.2rem;
+      color: #ffe15f;
+    }
+
     #controls {
-      margin-top: 1rem;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      height: 90px;
+      align-items: center;
     }
+
     button {
-      padding: 1rem 2rem;
-      margin: 0 1rem;
-      font-size: 1.2rem;
+      font-size: 1.8rem;
+      padding: 1rem 2.5rem;
       font-weight: bold;
+      color: white;
+      background-color: #ff3c3c;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ff6767;
     }
   </style>
 </head>
@@ -61,33 +97,63 @@
 
     const roller = document.getElementById('roller');
     let intervalId;
+    let speed = 5;
+    let offset = 0;
+    let slowingDown = false;
 
     function populate() {
       roller.innerHTML = '';
-      for (let i = 0; i < 100; i++) {
-        const item = document.createElement('div');
-        item.className = 'item';
-        item.textContent = themes[Math.floor(Math.random() * themes.length)];
-        roller.appendChild(item);
+      for (let i = 0; i < 20; i++) {
+        for (const theme of themes) {
+          const item = document.createElement('div');
+          item.className = 'item';
+          item.textContent = theme;
+          roller.appendChild(item);
+        }
       }
+    }
+
+    function highlightCenterItem() {
+      const items = roller.querySelectorAll('.item');
+      const center = roller.scrollTop + roller.clientHeight / 2;
+      items.forEach(item => {
+        const itemTop = item.offsetTop;
+        const itemBottom = itemTop + item.clientHeight;
+        if (itemTop <= center && itemBottom >= center) {
+          item.classList.add('centered');
+        } else {
+          item.classList.remove('centered');
+        }
+      });
     }
 
     function startRoll() {
       populate();
-      let offset = 0;
+      offset = 0;
+      speed = 5;
+      slowingDown = false;
+      if (intervalId) clearInterval(intervalId);
       intervalId = setInterval(() => {
-        offset += 5;
+        offset += speed;
         roller.scrollTop = offset;
         if (offset >= roller.scrollHeight - roller.clientHeight) offset = 0;
+        highlightCenterItem();
+        if (slowingDown) {
+          speed *= 0.95;
+          if (speed < 0.5) {
+            clearInterval(intervalId);
+            highlightCenterItem();
+          }
+        }
       }, 50);
     }
 
     function stopRoll() {
-      clearInterval(intervalId);
+      slowingDown = true;
     }
 
-    // 初期化
     populate();
+    highlightCenterItem();
   </script>
 
 </body>
