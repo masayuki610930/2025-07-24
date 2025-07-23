@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <title>宴道 抽選ルーレット</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       background: linear-gradient(to bottom, #1c2e4a, #223d6e, #2f4e8c);
       font-family: 'Arial Black', sans-serif;
       color: white;
@@ -21,9 +22,8 @@
     }
 
     #roller {
-      height: 15rem; /* 約5行分 */
+      height: calc(100vh - 150px); /* ボタン除いた残り高さに */
       overflow: hidden;
-      position: relative;
       margin: auto;
       width: 100%;
       display: flex;
@@ -34,7 +34,7 @@
 
     .item {
       font-size: 2rem;
-      padding: 2rem 0;
+      padding: 2.5rem 0;
       transition: transform 0.2s, font-size 0.2s;
     }
 
@@ -52,18 +52,18 @@
       display: flex;
       justify-content: center;
       gap: 2rem;
-      height: 90px;
+      height: 120px;
       align-items: center;
     }
 
     button {
-      font-size: 1.8rem;
-      padding: 1rem 2.5rem;
+      font-size: 2.2rem;
+      padding: 2rem 3rem;
       font-weight: bold;
       color: white;
       background-color: #ff3c3c;
       border: none;
-      border-radius: 10px;
+      border-radius: 14px;
       cursor: pointer;
     }
 
@@ -97,7 +97,7 @@
 
     const roller = document.getElementById('roller');
     let intervalId;
-    let speed = 5;
+    let speed = 15; // ← スピード3倍
     let offset = 0;
     let slowingDown = false;
 
@@ -130,7 +130,7 @@
     function startRoll() {
       populate();
       offset = 0;
-      speed = 5;
+      speed = 15;
       slowingDown = false;
       if (intervalId) clearInterval(intervalId);
       intervalId = setInterval(() => {
@@ -139,7 +139,7 @@
         if (offset >= roller.scrollHeight - roller.clientHeight) offset = 0;
         highlightCenterItem();
         if (slowingDown) {
-          speed *= 0.95;
+          speed *= 0.975; // ← よりゆるやかに停止
           if (speed < 0.5) {
             clearInterval(intervalId);
             highlightCenterItem();
